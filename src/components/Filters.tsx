@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trash2 } from "lucide-react";
 import React from "react";
 import { useStore } from "src/store";
@@ -11,50 +13,50 @@ export const Filters: React.FC = () => {
   const activeCount = todos.filter((t) => !t.completed).length;
   const hasCompleted = todos.some((t) => t.completed);
 
-  const filters: { label: string; value: TodoFilter }[] = [
-    { label: "All", value: "ALL" },
-    { label: "Active", value: "ACTIVE" },
-    { label: "Completed", value: "COMPLETED" },
-  ];
-
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-1 text-sm text-slate-500">
-      <span className="font-medium">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-6 mt-2">
+      <span className="text-sm font-medium text-slate-500 dark:text-slate-400 order-2 sm:order-1">
         {activeCount} {activeCount === 1 ? "task" : "tasks"} remaining
       </span>
 
-      <div className="flex p-1 bg-slate-100 rounded-xl gap-1">
-        {filters.map((f) => (
-          <button
-            key={f.value}
-            onClick={() => setFilter(f.value)}
-            className={`px-4 py-1.5 rounded-lg font-medium transition-all duration-200
-              ${
-                filter === f.value
-                  ? "bg-white text-indigo-600 shadow-sm"
-                  : "text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
-              }
-            `}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-
-      <button
-        onClick={clearCompleted}
-        disabled={!hasCompleted}
-        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium transition-colors
-          ${
-            hasCompleted
-              ? "text-slate-500 hover:text-red-600 hover:bg-red-50 cursor-pointer"
-              : "text-slate-300 cursor-not-allowed"
-          }
-        `}
+      <Tabs
+        defaultValue={filter}
+        onValueChange={(val) => setFilter(val as TodoFilter)}
+        className="order-1 sm:order-2"
       >
-        <Trash2 className="w-4 h-4" />
-        Clear Done
-      </button>
+        <TabsList className="grid w-full grid-cols-3 h-10 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+          <TabsTrigger value="ALL" className="rounded-lg text-xs font-medium">
+            All
+          </TabsTrigger>
+          <TabsTrigger
+            value="ACTIVE"
+            className="rounded-lg text-xs font-medium"
+          >
+            Active
+          </TabsTrigger>
+          <TabsTrigger
+            value="COMPLETED"
+            className="rounded-lg text-xs font-medium"
+          >
+            Completed
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
+
+      <div className="order-3 sm:order-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={clearCompleted}
+          disabled={!hasCompleted}
+          className={`text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors ${
+            !hasCompleted && "opacity-50 cursor-not-allowed"
+          }`}
+        >
+          <Trash2 className="w-4 h-4 mr-2" />
+          Clear Done
+        </Button>
+      </div>
     </div>
   );
 };

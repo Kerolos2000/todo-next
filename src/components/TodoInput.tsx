@@ -1,4 +1,13 @@
 "use client";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Plus } from "lucide-react";
 import React from "react";
@@ -9,12 +18,7 @@ import { useStore } from "src/store";
 export const TodoInput: React.FC = () => {
   const addTodo = useStore((state) => state.addTodo);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-  } = useForm<TodoFormValues>({
+  const form = useForm<TodoFormValues>({
     resolver: zodResolver(todoSchema),
     defaultValues: {
       text: "",
@@ -23,44 +27,51 @@ export const TodoInput: React.FC = () => {
 
   const onSubmit = (data: TodoFormValues) => {
     addTodo(data.text);
-    reset();
+    form.reset();
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="w-full mb-6 relative group"
-    >
-      <div className="relative flex items-center">
-        <input
-          type="text"
-          {...register("text")}
-          placeholder="What needs to be done?"
-          className={`w-full pl-5 pr-14 py-4 text-lg bg-white rounded-2xl shadow-sm border-2 outline-none transition-all duration-200 ease-in-out
-            ${
-              errors.text
-                ? "border-red-300 focus:border-red-500 focus:ring-4 focus:ring-red-50 placeholder-red-300"
-                : "border-slate-100 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-50 placeholder-slate-400 group-hover:border-slate-200"
-            }
-          `}
-          autoComplete="off"
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="w-full mb-8 relative z-10"
+      >
+        <FormField
+          control={form.control}
+          name="text"
+          render={({ field }) => (
+            <FormItem>
+              <div className="relative flex items-center gap-2">
+                <FormControl>
+                  <Input
+                    placeholder="What needs to be done?"
+                    className="h-14 pl-6 pr-14 text-lg bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm focus-visible:ring-indigo-500 transition-all duration-300 hover:border-indigo-300 dark:hover:border-indigo-700"
+                    autoComplete="off"
+                    {...field}
+                  />
+                </FormControl>
+                <Button
+                  type="submit"
+                  size="icon"
+                  disabled={form.formState.isSubmitting}
+                  className="absolute right-2 h-10 w-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-200 dark:shadow-none transition-all duration-200 hover:scale-105 active:scale-95"
+                >
+                  <Plus className="w-5 h-5" />
+                  <span className="sr-only">Add task</span>
+                </Button>
+              </div>
+              <FormMessage className="ml-4 mt-2 text-red-500 font-medium flex items-center gap-1">
+                {(msg) => (
+                  <>
+                    <AlertCircle className="w-3 h-3" />
+                    {msg}
+                  </>
+                )}
+              </FormMessage>
+            </FormItem>
+          )}
         />
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="absolute right-2 p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 active:scale-95 disabled:opacity-50 disabled:scale-100 transition-all duration-200 shadow-md shadow-indigo-200"
-          aria-label="Add task"
-        >
-          <Plus className="w-6 h-6" />
-        </button>
-      </div>
-
-      {errors.text && (
-        <div className="absolute -bottom-6 left-4 flex items-center gap-1.5 text-xs font-medium text-red-500 animate-pulse">
-          <AlertCircle className="w-3.5 h-3.5" />
-          <span>{errors.text.message}</span>
-        </div>
-      )}
-    </form>
+      </form>
+    </Form>
   );
 };
